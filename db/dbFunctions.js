@@ -41,7 +41,20 @@ class DB {
     }
 
     addEmployee() {
-        
+        const roles = [];
+        connection.query("SELECT * FROM role", function (err, roleList) {
+            if (err) throw err
+            for (var i = 0; i < roleList.length; i++) {
+                roles.push(roleList[i].title)
+            }
+        })
+        const managers = [];
+        connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", function (err, managerList) {
+            if (err) throw err
+            for (var i = 0; i < managerList.length; i++) {
+                managers.push(managerList[i].first_name + " " + managerList[i].last_name)
+            }
+        })
         inquirer.prompt([{
             type: "input",
             name: "firstName",
@@ -69,7 +82,13 @@ class DB {
 
     }
     addRole() {
-        
+        const departments = [];
+        connection.query("SELECT * FROM department", function (err, depList) {
+            if (err) throw err
+            for (var i = 0; i < depList.length; i++) {
+                departments.push(depList[i].name)
+            }
+        })
         inquirer.prompt([{
             type: "input",
             name: "title",
