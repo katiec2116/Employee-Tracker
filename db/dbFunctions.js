@@ -125,7 +125,20 @@ class DB {
             choices: departments
 
         }])
-            
+            .then(answer => {
+                connection.query("SELECT id FROM department WHERE name = ?", answer.deptName, function(err, results) {
+                    if (err) throw err;
+                connection.query("INSERT INTO role SET ?",
+                    {
+                        title: answer.title,
+                        salary: answer.salary,
+                        department_id: JSON.parse(results[0].id)
+                    },
+                    function (err, res) {
+                        if (err) throw err;
+                    })
+                })
+            });
     }
 }
 
