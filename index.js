@@ -1,8 +1,9 @@
 // require statements
 const inquirer = require("inquirer");
 const mysql = require("mysql");
+const DB = require("./db/dbFunctions.js")
 
-
+init();
 // function init()
 
 function init() {
@@ -11,33 +12,36 @@ function init() {
 }
 
 function loadPrompts() {
-    inquirer.prompt({
-        type: "list",
-        name: "action",
-        message: "What would you like to do?",
-        choices: ["View All Departments", "View All Employees", "View All Roles", "Add New Department", "Add  New Employee", "Add New Role", "Update Employee Role"]
-    })
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "action",
+            message: "What would you like to do?",
+            choices: ["View All Departments", "View All Employees", "View All Roles", "Add New Department", "Add  New Employee", "Add New Role", "Update Employee Role"]
+        }])
 
-    switch (choice) {
-        case "View All Departments":
-            return viewDepartments();
+        .then(answer=> {
 
-        case "View All Employees":
-            return viewEmployees();
+            switch (answer.action) {
+                case "View All Departments":
+                    return DB.viewDepartments();
 
-        case "View All Roles":
-            return viewRoles();
+                case "View All Employees":
+                    return DB.viewEmployees();
 
-        case "Add New Department":
-            return addDepartment();
+                case "View All Roles":
+                    return DB.viewRoles();
 
-        case "Add New Employee":
-            return addEmployee();
+                case "Add New Department":
+                    return addDepartment();
 
-        case "Add New Role":
-            return addRole();
-            
-        case "Update Employee Role":
-            return updateEmployee();
-    }
-}
+                case "Add New Employee":
+                    return addEmployee();
+
+                case "Add New Role":
+                    return addRole();
+
+                case "Update Employee Role":
+                    return updateEmployee();
+            }
+        })}

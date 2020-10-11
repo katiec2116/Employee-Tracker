@@ -1,3 +1,5 @@
+const mysql = require("mysql")
+
 const connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
@@ -5,3 +7,5 @@ const connection = mysql.createConnection({
     password: "rootroot",
     database: "employees" 
 })
+
+module.exports  = connection;
