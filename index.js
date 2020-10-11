@@ -1,23 +1,20 @@
 // require statements
 const inquirer = require("inquirer");
-const mysql = require("mysql");
+const { exit } = require("process");
 const DB = require("./db/dbFunctions.js")
 
-init();
-// function init()
-
-function init() {
+const init = () => {
     // load prompts
     loadPrompts();
 }
 
-function loadPrompts() {
+const loadPrompts = () => {
     inquirer.prompt([
         {
             type: "list",
             name: "action",
             message: "What would you like to do?",
-            choices: ["View All Departments", "View All Employees", "View All Roles", "Add New Department", "Add New Employee", "Add New Role", "Update Employee Role", "Update Employees Manager", "View Employees by Manager", "Delete Department", "Delete Employee", "Delete Role"]
+            choices: ["View All Departments", "View All Employees", "View All Roles", "Add New Department", "Add New Employee", "Add New Role", "Update Employee Role", "Update Employees Manager", "View Employees by Manager", "Delete Department", "Delete Employee", "Delete Role", "Exit"]
         }])
 
         .then(answer => {
@@ -55,9 +52,17 @@ function loadPrompts() {
 
                 case "Delete Employee":
                     return DB.updateEmployee();
-                    
+
                 case "Delete Role":
                     return DB.updateEmployee();
+
+                case "Exit":
+                    exit();
             }
         })
 }
+
+init();
+// function init()
+
+module.exports = loadPrompts;
