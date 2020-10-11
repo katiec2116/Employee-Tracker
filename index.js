@@ -17,10 +17,10 @@ function loadPrompts() {
             type: "list",
             name: "action",
             message: "What would you like to do?",
-            choices: ["View All Departments", "View All Employees", "View All Roles", "Add New Department", "Add  New Employee", "Add New Role", "Update Employee Role"]
+            choices: ["View All Departments", "View All Employees", "View All Roles", "Add New Department", "Add New Employee", "Add New Role", "Update Employee Role", "Update Employees Manager", "View Employees by Manager", "Delete Department", "Delete Employee", "Delete Role"]
         }])
 
-        .then(answer=> {
+        .then(answer => {
 
             switch (answer.action) {
                 case "View All Departments":
@@ -33,15 +33,31 @@ function loadPrompts() {
                     return DB.viewRoles();
 
                 case "Add New Department":
-                    return addDepartment();
+                    return DB.addDepartment();
 
                 case "Add New Employee":
-                    return addEmployee();
+                    return DB.addEmployee();
 
                 case "Add New Role":
-                    return addRole();
+                    return DB.addRole();
 
                 case "Update Employee Role":
-                    return updateEmployee();
+                    return DB.updateEmployee();
+
+                case "Update Employees Manager":
+                    return DB.updateEmployee();
+
+                case "View Employees by Manager":
+                    return DB.updateEmployee();
+
+                case "Delete Department":
+                    return DB.updateEmployee();
+
+                case "Delete Employee":
+                    return DB.updateEmployee();
+                    
+                case "Delete Role":
+                    return DB.updateEmployee();
             }
-        })}
+        })
+}
