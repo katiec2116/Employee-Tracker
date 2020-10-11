@@ -142,12 +142,10 @@ class DB {
 
 
     updateEmployee() {
+        const employees = [];
+        const roles = [];
         connection.query("SELECT * FROM employee INNER JOIN role ON employee.role_id = role.id ", (err, results) => {
-            console.log(results)
-            const employees = [];
-            const roles = [];
             if (err) throw err;
-            console.log(results)
             for (var i = 0; i < results.length; i++) {
                 employees.push(results[i].first_name + " " + results[i].last_name)
             }
@@ -168,12 +166,35 @@ class DB {
             }])
 
                 .then(answer => {
-                    console.log(results)
+                    const employee = answer.employee.split(" ");
+                    connection.query("SELECT id FROM employee WHERE first_name = ? AND last_name =?", [employee[0], employee[1]], (err, employeeResult) => {
 
+                        connection.query("SELECT id FROM role WHERE title = ?", answer.newRole, (err, results) => {
+                            if (err) throw err;
+                            connection.query("UPDATE employee SET role_id = ? WHERE id =?", [results[0].id, employeeResult[0].id]
+                            )
+                        }
 
+                        )
+
+                    })
                 })
         })
+
     }
+
+   
+    // pullManagers() {
+    //     const managers = [];
+    //     connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", (err, managerList) => {
+    //         if (err) throw err
+    //         for (var i = 0; i < managerList.length; i++) {
+    //             managers.push(managerList[i].first_name + " " + managerList[i].last_name)
+    //         }
+    //         console.log(managers)
+    //         return managers
+    //     })
+    // }
 
 }
 

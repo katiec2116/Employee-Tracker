@@ -42,19 +42,19 @@ const loadPrompts = () => {
                     return DB.updateEmployee();
 
                 case "Update Employees Manager":
-                    return DB.updateEmployee();
+                    return DB.updateManager();
 
                 case "View Employees by Manager":
-                    return DB.updateEmployee();
+                    return DB.employeesByManager();
 
                 case "Delete Department":
-                    return DB.updateEmployee();
+                    return DB.deleteDepartment();
 
                 case "Delete Employee":
-                    return DB.updateEmployee();
+                    return DB.deleteEmployee();
 
                 case "Delete Role":
-                    return DB.updateEmployee();
+                    return DB.deleteRole();
 
                 case "Exit":
                     exit();
