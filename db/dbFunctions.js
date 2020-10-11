@@ -183,7 +183,33 @@ class DB {
 
     }
 
-   
+    employeesByManager() {
+        const managers = [];
+        connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", (err, managerList) => {
+            if (err) throw err
+            for (var i = 0; i < managerList.length; i++) {
+                managers.push(managerList[i].first_name + " " + managerList[i].last_name)
+            }
+            inquirer.prompt([{
+                type: "list",
+                name: "manager",
+                message: "Which managers employees do you wnat to see?",
+                choices: managers,
+            }])
+                .then(answer => {
+                    const chosenManager = answer.manager.split(" ");
+                    connection.query("SELECT id FROM employee WHERE first_name = ? AND last_name =?", [chosenManager[0], chosenManager[1]], (err, managerResult) => {
+                    connection.query("SELECT first_name, last_name FROM employee WHERE manager_id = ?", [managerResult[0].id], (err, results) => {
+                        if (err) throw err;
+                        console.table(results)
+                    })
+
+                })
+
+                })
+        }
+        )
+    }
     // pullManagers() {
     //     const managers = [];
     //     connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", (err, managerList) => {
