@@ -78,7 +78,24 @@ class DB {
             message: "Who is the employee's manager?",
             choices: managers
         }])
-            
+            .then(answer => {
+                console.log(answer)
+                connection.query("SELECT id FROM role WHERE title = ?", answer.role, function(err, results) {
+                    if (err) throw err;
+                const roleID = results
+                })
+                connection.query("SELECT * FROM employee", function(err, managerRes){
+                    if (err) throw err;
+                    console.log(managerRes)
+                });
+                // connection.query("INSERT INTO employee SET ?",
+                // {
+                //     first_name: answer.firstName,
+                //     last_name: answer.lastname,
+                //     role_id: answer.role_id,
+                //     manager_id: answer.manager_id
+                // })
+            });
 
     }
     addRole() {
