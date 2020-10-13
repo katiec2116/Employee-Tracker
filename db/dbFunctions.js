@@ -246,6 +246,28 @@ class DB {
         });
     }
 
+    employeesByManager() {
+        const managers = [];
+        let query = "CREATE TEMPORARY TABLE temp AS SELECT id , CONCAT(first_name,' ', last_name) AS Manager FROM employee where manager_id IS NULL;"
+        connection.query(query, (err, results) => {
+            if (err) throw err;
+        })
+        query = "SELECT Manager FROM temp"
+        connection.query(query, (err, results) => {
+            if (err) throw err;
+            for (var i = 0; i < results.length; i++) {
+                managers.push(results[i].Manager)
+            }
+            inquirer.prompt([{
+                type: "list",
+                name: "manager",
+                message: "Which managers employees do you want to see?",
+                choices: managers,
+            }])
+                .then(answer => {
+                    
+
+
     
 }
 // pullManagers() {
