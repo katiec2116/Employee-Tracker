@@ -288,7 +288,47 @@ class DB {
     }
 
 
-    
+    deleteEmployee() {
+        const employees = [];
+        let query = "CREATE TEMPORARY TABLE temp AS SELECT id , CONCAT(first_name,' ', last_name) AS employee FROM employee;"
+        connection.query(query, (err, results) => {
+            if (err) throw err;
+        
+        query = "SELECT employee FROM temp"
+        connection.query(query, (err, results) => {
+            if (err) throw err;
+            for (var i = 0; i < results.length; i++) {
+                employees.push(results[i].employee)
+            }
+            inquirer.prompt({
+                type: "list",
+                name: "employee",
+                message: "Which employee do you want to delete?",
+                choices: employees
+
+            })
+                .then(answer => {
+                    query = "SELECT id FROM temp WHERE Employee =?"
+                    connection.query(query, answer.employee, (err, results) => {
+                        if (err) throw err;
+                        const empId = results[0].id
+                        query = "DELETE FROM employee WHERE id =?";
+                        connection.query(query, empId, (err, results) => {
+                            if (err) throw err;
+                            console.log("This employee has been deleted!")
+                            setTimeout(() => {  
+                                console.log("\n", "-".repeat(80), "\n")
+                                index.loadPrompts();   
+                            }, 1000)
+                        })
+                    });
+                });
+
+            })
+        
+        })
+            
+    }
 }
 // pullManagers() {
 //     const managers = [];
