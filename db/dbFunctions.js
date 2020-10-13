@@ -265,7 +265,27 @@ class DB {
                 choices: managers,
             }])
                 .then(answer => {
-                    
+                    const chosenManager = answer.manager;
+                    console.log(chosenManager)
+                    query = "SELECT id FROM temp WHERE Manager =?"
+                    connection.query(query, [chosenManager], (err, managerResult) => {
+                        query = "CREATE TEMPORARY TABLE temp2 AS SELECT CONCAT(first_name,' ', last_name) AS Employee, title AS Role, salary AS Salary, name AS Department FROM ((employee INNER JOIN role ON employee.role_id = role.id) INNER JOIN department ON role.department_id = department.id) WHERE manager_id = ?"
+                        connection.query(query,[managerResult[0].id], (err, results) => {
+                            if (err) throw err;
+                            query = "SELECT * FROM temp2"
+                            connection.query(query, [managerResult[0].id], (err, results) => {
+                                if (err) throw err;
+                                console.table(results);
+                            setTimeout(() => {  
+                                console.log("\n", "-".repeat(80), "\n")
+                                index.loadPrompts();   
+                            }, 1000)
+                        });
+                    });
+                });
+                });
+        })
+    }
 
 
     
