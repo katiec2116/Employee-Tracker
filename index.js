@@ -1,6 +1,6 @@
 // require statements
 const inquirer = require("inquirer");
-const { exit } = require("process");
+const connection = require("./db/connection.js");
 const DB = require("./db/dbFunctions.js")
 
 const init = () => {
@@ -8,7 +8,7 @@ const init = () => {
     loadPrompts();
 }
 
-const loadPrompts = () => {
+function loadPrompts(){
     inquirer.prompt([
         {
             type: "list",
@@ -57,7 +57,7 @@ const loadPrompts = () => {
                     return DB.deleteRole();
 
                 case "Exit":
-                    exit();
+                    connection.end();
             }
         })
 }
@@ -65,4 +65,4 @@ const loadPrompts = () => {
 init();
 // function init()
 
-module.exports = loadPrompts;
+module.exports.loadPrompts = loadPrompts;
