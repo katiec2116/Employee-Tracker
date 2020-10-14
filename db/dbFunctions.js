@@ -3,7 +3,7 @@ const index = require("../index");
 const { query } = require("./connection");
 const connection = require("./connection");
 
-
+// ADD VALIDATION
 
 class DB {
     // create functions here
@@ -11,9 +11,9 @@ class DB {
         await connection.query("SELECT name AS Department FROM department", (err, results) => {
             if (err) throw err;
             console.table(results);
-            setTimeout(() => {  
+            setTimeout(() => {
                 console.log("\n", "-".repeat(80), "\n")
-                index.loadPrompts();   
+                index.loadPrompts();
             }, 1000)
         });
     }
@@ -30,25 +30,25 @@ class DB {
         await connection.query(query, (err, results) => {
             if (err) throw err;
             console.table(results);
-            setTimeout(() => {  
+            setTimeout(() => {
                 console.log("\n", "-".repeat(80), "\n")
-                index.loadPrompts();   
+                index.loadPrompts();
             }, 1000)
         });
     }
-    viewRoles() {
+    async viewRoles() {
         let query = "CREATE TEMPORARY TABLE roleInfo AS SELECT role.title AS Role, role.salary AS Salary, department.name AS Department FROM role INNER JOIN department ON role.department_id = department.id"
-        connection.query(query, (err, results) => {
+        await connection.query(query, (err, results) => {
             if (err) throw err;
 
         });
         query = "SELECT * FROM roleInfo"
-        connection.query(query, (err, results) => {
+        await connection.query(query, (err, results) => {
             if (err) throw err;
             console.table(results);
-            setTimeout(() => {  
+            setTimeout(() => {
                 console.log("\n", "-".repeat(80), "\n")
-                index.loadPrompts();   
+                index.loadPrompts();
             }, 1000)
         });
     }
@@ -68,9 +68,9 @@ class DB {
                     (err, results) => {
                         if (err) throw err;
                         console.log("The department has been added!")
-                        setTimeout(() => {  
+                        setTimeout(() => {
                             console.log("\n", "-".repeat(80), "\n")
-                            index.loadPrompts();   
+                            index.loadPrompts();
                         }, 1000)
                     })
             });
@@ -141,9 +141,9 @@ class DB {
                                 manager_id: managerID
                             })
                         console.log("The new employee has been added!");
-                        setTimeout(() => {  
+                        setTimeout(() => {
                             console.log("\n", "-".repeat(80), "\n")
-                            index.loadPrompts();   
+                            index.loadPrompts();
                         }, 1000)
                     });
                 });
@@ -192,9 +192,9 @@ class DB {
                         (err, res) => {
                             if (err) throw err;
                             console.log("The new role has been added!")
-                            setTimeout(() => {  
+                            setTimeout(() => {
                                 console.log("\n", "-".repeat(80), "\n")
-                                index.loadPrompts();   
+                                index.loadPrompts();
                             }, 1000)
                         })
                 })
@@ -236,9 +236,9 @@ class DB {
                             query = "UPDATE employee SET role_id = ? WHERE id =?"
                             connection.query(query, [results[0].id, employeeResult[0].id])
                             console.log("The employee has been updated!");
-                            setTimeout(() => {  
+                            setTimeout(() => {
                                 console.log("\n", "-".repeat(80), "\n")
-                                index.loadPrompts();   
+                                index.loadPrompts();
                             }, 1000)
                         });
                     });
@@ -270,19 +270,19 @@ class DB {
                     query = "SELECT id FROM temp WHERE Manager =?"
                     connection.query(query, [chosenManager], (err, managerResult) => {
                         query = "CREATE TEMPORARY TABLE temp2 AS SELECT CONCAT(first_name,' ', last_name) AS Employee, title AS Role, salary AS Salary, name AS Department FROM ((employee INNER JOIN role ON employee.role_id = role.id) INNER JOIN department ON role.department_id = department.id) WHERE manager_id = ?"
-                        connection.query(query,[managerResult[0].id], (err, results) => {
+                        connection.query(query, [managerResult[0].id], (err, results) => {
                             if (err) throw err;
                             query = "SELECT * FROM temp2"
                             connection.query(query, [managerResult[0].id], (err, results) => {
                                 if (err) throw err;
                                 console.table(results);
-                            setTimeout(() => {  
-                                console.log("\n", "-".repeat(80), "\n")
-                                index.loadPrompts();   
-                            }, 1000)
+                                setTimeout(() => {
+                                    console.log("\n", "-".repeat(80), "\n")
+                                    index.loadPrompts();
+                                }, 1000)
+                            });
                         });
                     });
-                });
                 });
         })
     }
@@ -293,54 +293,46 @@ class DB {
         let query = "CREATE TEMPORARY TABLE temp AS SELECT id , CONCAT(first_name,' ', last_name) AS employee FROM employee;"
         connection.query(query, (err, results) => {
             if (err) throw err;
-        
-        query = "SELECT employee FROM temp"
-        connection.query(query, (err, results) => {
-            if (err) throw err;
-            for (var i = 0; i < results.length; i++) {
-                employees.push(results[i].employee)
-            }
-            inquirer.prompt({
-                type: "list",
-                name: "employee",
-                message: "Which employee do you want to delete?",
-                choices: employees
 
-            })
-                .then(answer => {
-                    query = "SELECT id FROM temp WHERE Employee =?"
-                    connection.query(query, answer.employee, (err, results) => {
-                        if (err) throw err;
-                        const empId = results[0].id
-                        query = "DELETE FROM employee WHERE id =?";
-                        connection.query(query, empId, (err, results) => {
+            query = "SELECT employee FROM temp"
+            connection.query("SELECT employee FROM temp", (err, results) => {
+                if (err) throw err;
+                for (var i = 0; i < results.length; i++) {
+                    employees.push(results[i].employee)
+                }
+                inquirer.prompt({
+                    type: "list",
+                    name: "employee",
+                    message: "Which employee do you want to delete?",
+                    choices: employees
+
+                })
+                    .then(answer => {
+                        query = "SELECT id FROM temp WHERE Employee =?"
+                        connection.query(query, answer.employee, (err, results) => {
                             if (err) throw err;
-                            console.log("This employee has been deleted!")
-                            setTimeout(() => {  
-                                console.log("\n", "-".repeat(80), "\n")
-                                index.loadPrompts();   
-                            }, 1000)
-                        })
+                            const empId = results[0].id
+                            query = "DELETE FROM employee WHERE id =?";
+                            connection.query(query, empId, (err, results) => {
+                                if (err) throw err;
+                                console.log("This employee has been deleted!")
+                                setTimeout(() => {
+                                    console.log("\n", "-".repeat(80), "\n")
+                                    index.loadPrompts();
+                                }, 1000)
+                            })
+                        });
                     });
-                });
 
             })
-        
+
         })
-            
+
     }
+    
+
+  
 }
-// pullManagers() {
-//     const managers = [];
-//     connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", (err, managerList) => {
-//         if (err) throw err
-//         for (var i = 0; i < managerList.length; i++) {
-//             managers.push(managerList[i].first_name + " " + managerList[i].last_name)
-//         }
-//         console.log(managers)
-//         return managers
-//     })
-// }
 
 
 

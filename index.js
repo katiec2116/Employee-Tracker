@@ -2,9 +2,11 @@
 const inquirer = require("inquirer");
 const connection = require("./db/connection.js");
 const DB = require("./db/dbFunctions.js")
+const logo = require("asciiart-logo")
 
 const init = () => {
-    // load prompts
+    const logoText = logot({ name: "Employee Manager"}).render();
+    console.log(logoText)
     loadPrompts();
 }
 
