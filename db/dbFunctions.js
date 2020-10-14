@@ -364,7 +364,44 @@ class DB {
         })
     }
 
-  
+    deleteDepartment() {
+        var departments = [];
+        query = "SELECT name FROM department"
+        connection.query(query, (err, results) => {
+            if (err) throw err;
+            for (var i = 0; i < results.length; i++) {
+                departments.push(results[i].name)
+            }
+            inquirer.prompt({
+                type: "list",
+                name: "department",
+                message: "Which department do you want to delete?",
+                choices: departments
+
+            })
+                .then(answer => {
+                    query = "SELECT id FROM departments WHERE name =?"
+                    connection.query(query, answer.department, (err, results) => {
+                        if (err) throw err;
+                        const depID = results[0].id
+                        query = "DELETE FROM departments WHERE id =?";
+                        connection.query(query, depID, (err, results) => {
+                            if (err) throw err;
+                            console.log("This department has been deleted!")
+                            setTimeout(() => {
+                                console.log("\n", "-".repeat(80), "\n")
+                                index.loadPrompts();
+                            }, 1000)
+                        })
+                    });
+                });
+
+        })
+    }
+
+
+
+   
 }
 
 
