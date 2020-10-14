@@ -329,7 +329,40 @@ class DB {
         })
 
     }
-    
+    deleteRole() {
+        var roles = [];
+        query = "SELECT role FROM roles"
+        connection.query(query, (err, results) => {
+            if (err) throw err;
+            for (var i = 0; i < results.length; i++) {
+                roles.push(results[i].role)
+            }
+            inquirer.prompt({
+                type: "list",
+                name: "role",
+                message: "Which role do you want to delete?",
+                choices: employees
+
+            })
+                .then(answer => {
+                    query = "SELECT id FROM roles WHERE role =?"
+                    connection.query(query, answer.role, (err, results) => {
+                        if (err) throw err;
+                        const roleID = results[0].id
+                        query = "DELETE FROM employee WHERE id =?";
+                        connection.query(query, roleID, (err, results) => {
+                            if (err) throw err;
+                            console.log("This employee has been deleted!")
+                            setTimeout(() => {
+                                console.log("\n", "-".repeat(80), "\n")
+                                index.loadPrompts();
+                            }, 1000)
+                        })
+                    });
+                });
+
+        })
+    }
 
   
 }
