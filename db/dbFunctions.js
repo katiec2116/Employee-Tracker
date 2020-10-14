@@ -401,7 +401,21 @@ class DB {
 
 
 
-   
+    async departmentBudget() {
+        let query = "CREATE TEMPORARY TABLE depBudget AS SELECT employee.id AS Employee, role.salary AS Salary, department.name AS Department, department_id FROM ((employee  LEFT JOIN role ON employee.role_id = role.id) RIGHT JOIN department ON role.department_id = department.id);"
+        await connection.query(query, (err, results) => {
+            if (err) throw err;
+            query = "SELECT Department, SUM(Salary), COUNT(Employee) AS NumberOfEmployees FROM depBudget GROUP BY Department;"
+            await connection.query(query, (err, results) => {
+                if (err) throw err;
+                console.table(results);
+                setTimeout(() => {
+                    console.log("\n", "-".repeat(80), "\n")
+                    index.loadPrompts();
+                }, 1000)
+            });
+        });
+    }
 }
 
 
