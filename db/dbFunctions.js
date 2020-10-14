@@ -56,11 +56,17 @@ class DB {
         inquirer.prompt({
             type: "input",
             name: "newDept",
-            message: "What new department would you like to add?"
+            message: "What new department would you like to add?",
+            validate: answer => {
+                if (answer !== "") {
+                    return true;
+                }
+                return "Please enter a department"
+            }
 
         })
             .then(answer => {
-                query = "INSERT INTO department SET ?"
+                const query = "INSERT INTO department SET ?"
                 connection.query(query,
                     {
                         name: answer.newDept
@@ -97,12 +103,24 @@ class DB {
         inquirer.prompt([{
             type: "input",
             name: "firstName",
-            message: "What is the employee's first name?"
+            message: "What is the employee's first name?",
+            validate: answer => {
+                if (answer !== "") {
+                    return true;
+                }
+                return "Please enter a first name"
+            }
         },
         {
             type: "input",
             name: "lastName",
-            message: "What is the employee's last name?"
+            message: "What is the employee's last name?",
+            validate: answer => {
+                if (answer !== "") {
+                    return true;
+                }
+                return "Please enter a last name"
+            }
         },
         {
             type: "list",
@@ -160,23 +178,33 @@ class DB {
             }
         })
         inquirer.prompt([{
+            type: "list",
+            name: "deptName",
+            message: "What department will the role be under?",
+            choices: departments
+        },
+        {
             type: "input",
             name: "title",
-            message: "What is the title?"
+            message: "What is the title?",
+            validate: answer => {
+                if (answer !== "") {
+                    return true;
+                }
+                return "Please enter a title"
+            }
 
         },
         {
             type: "input",
             name: "salary",
-            message: "What is the salary?"
-
-        },
-        {
-            type: "list",
-            name: "deptName",
-            message: "What department will the role be under?",
-            choices: departments
-
+            message: "What is the salary?",
+            validate: answer => {
+                if (answer >= 0) {
+                    return true;
+                }
+                return "Please enter a salary"
+            }
         }])
             .then(answer => {
                 query = "SELECT id FROM department WHERE name = ?"
@@ -205,14 +233,18 @@ class DB {
     updateEmployee() {
         const employees = [];
         const roles = [];
-        let query = "SELECT * FROM employee INNER JOIN role ON employee.role_id = role.id "
+        let query = "SELECT title FROM role"
         connection.query(query, (err, results) => {
             if (err) throw err;
             for (var i = 0; i < results.length; i++) {
-                employees.push(results[i].first_name + " " + results[i].last_name)
-            }
-            for (var i = 0; i < results.length; i++) {
                 roles.push(results[i].title)
+            }
+        });
+        query = "SELECT CONCAT(first_name,' ', last_name) AS Employee, title FROM employee INNER JOIN role ON employee.role_id = role.id "
+        connection.query(query, (err, results) => {
+            if (err) throw err;
+            for (var i = 0; i < results.length; i++) {
+                employees.push(results[i].Employee + " "+"is currently:"+ " " + results[i].title)
             }
             inquirer.prompt([{
                 type: "list",
@@ -406,7 +438,7 @@ class DB {
         await connection.query(query, (err, results) => {
             if (err) throw err;
             query = "SELECT Department, SUM(Salary), COUNT(Employee) AS NumberOfEmployees FROM depBudget GROUP BY Department;"
-            await connection.query(query, (err, results) => {
+            connection.query(query, (err, results) => {
                 if (err) throw err;
                 console.table(results);
                 setTimeout(() => {

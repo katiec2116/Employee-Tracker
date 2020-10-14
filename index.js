@@ -5,9 +5,12 @@ const DB = require("./db/dbFunctions.js")
 const logo = require("asciiart-logo")
 
 const init = () => {
-    const logoText = logot({ name: "Employee Manager"}).render();
+    const logoText = logo({ name: "Employee Manager"}).render();
     console.log(logoText)
-    loadPrompts();
+    setTimeout(() => {
+        console.log("\n")
+        loadPrompts();
+    }, 1000)
 }
 
 function loadPrompts(){
