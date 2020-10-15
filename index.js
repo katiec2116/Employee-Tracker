@@ -10,8 +10,8 @@ const init = () => {
         name: "Employee Manager",
         padding: 2,
         margin: 3,
-        logoColor: 'bold-cyan',
-        borderColor: 'bold-magenta'
+        logoColor: 'cyan',
+        borderColor: 'magenta'
     }).render();
     console.log(logoText)
     setTimeout(() => {
@@ -19,8 +19,6 @@ const init = () => {
         loadPrompts();
     }, 1000)
 }
-
-
 
 
 
@@ -34,48 +32,49 @@ function loadPrompts() {
         }])
 
         .then(answer => {
+            console.log(answer.action)
 
             switch (answer.action) {
-                case "View All Departments":
+                case chalk.cyan("View All Departments"):
                     return DB.viewDepartments();
 
-                case "View All Roles":
+                case chalk.cyan("View All Roles"):
                     return DB.viewRoles();
 
-                case "View All Employees":
+                case chalk.cyan("View All Employees"):
                     return DB.viewEmployees();
 
-                case "Add New Department":
+                case chalk.magenta("Add New Department"):
                     return DB.addDepartment();
 
-                case "Add New Role":
+                case chalk.magenta("Add New Role"):
                     return DB.addRole();
 
-                case "Add New Employee":
+                case chalk.magenta("Add New Employee"):
                     return DB.addEmployee();
 
-                case "Update Employee Role":
+                case chalk.yellow("Update Employee Role"):
                     return DB.updateEmployee();
 
-                case "Update Employees Manager":
+                case chalk.yellow("Update Employees Manager"):
                     return DB.updateManager();
 
-                case "View Employees by Manager":
+                case chalk.white("View Employees by Manager"):
                     return DB.employeesByManager();
 
-                case "Delete Department":
+                case chalk.blue("Delete Department"):
                     return DB.deleteDepartment();
 
-                case "Delete Role":
+                case chalk.blue("Delete Role"):
                     return DB.deleteRole();
 
-                case "Delete Employee":
+                case chalk.blue("Delete Employee"):
                     return DB.deleteEmployee();
 
-                case "View Departments Utilized Budget":
+                case chalk.white("View Departments Utilized Budget"):
                     return DB.departmentBudget();
 
-                case "Exit":
+                case chalk.red("Exit"):
                     connection.end();
             }
         })
@@ -83,5 +82,5 @@ function loadPrompts() {
 
 init();
 // function init()
-
+        
 module.exports.loadPrompts = loadPrompts;
