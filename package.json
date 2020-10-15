@@ -18,6 +18,7 @@
   "homepage": "https://github.com/katiec2116/Employee-Tracker#readme",
   "dependencies": {
     "asciiart-logo": "^0.2.6",
+    "chalk": "^4.1.0",
     "inquirer": "^7.3.3",
     "mysql": "^2.18.1"
   }
