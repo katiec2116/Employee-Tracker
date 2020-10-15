@@ -28,7 +28,7 @@ function loadPrompts() {
             type: "list",
             name: "action",
             message: "What would you like to do?",
-            choices: [chalk.cyan("View All Departments"), chalk.cyan("View All Roles"), chalk.cyan("View All Employees"), chalk.magenta("Add New Department"), chalk.magenta("Add New Role"), chalk.magenta("Add New Employee"), chalk.yellow("Update Employee Role"), chalk.yellow("Update Employees Manager"),  chalk.blue("Delete Department"), chalk.blue("Delete Role"), chalk.blue("Delete Employee"), chalk.white("View Employees by Manager"), chalk.white("View Departments Utilized Budget"), chalk.red("Exit")]
+            choices: [chalk.cyan("View All Departments"), chalk.cyan("View All Roles"), chalk.cyan("View All Employees"), chalk.magenta("Add New Department"), chalk.magenta("Add New Role"), chalk.magenta("Add New Employee"), chalk.blue("Delete Department"), chalk.blue("Delete Role"), chalk.blue("Delete Employee"),chalk.white("Update Employee Role"), chalk.white("View Employees by Manager"), chalk.white("View Departments Utilized Budget"), chalk.bgRed.black("Exit")]
         }])
 
         .then(answer => {
@@ -53,11 +53,8 @@ function loadPrompts() {
                 case chalk.magenta("Add New Employee"):
                     return DB.addEmployee();
 
-                case chalk.yellow("Update Employee Role"):
+                case chalk.white("Update Employee Role"):
                     return DB.updateEmployee();
-
-                case chalk.yellow("Update Employees Manager"):
-                    return DB.updateManager();
 
                 case chalk.white("View Employees by Manager"):
                     return DB.employeesByManager();
