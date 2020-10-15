@@ -5,6 +5,7 @@ const DB = require("./db/dbFunctions.js");
 const logo = require("asciiart-logo");
 const chalk = require('chalk');
 
+// create cool ascii art and call main function
 const init = () => {
     const logoText = logo({
         name: "Employee Manager",

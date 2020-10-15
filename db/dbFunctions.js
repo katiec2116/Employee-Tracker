@@ -6,7 +6,7 @@ const connection = require("./connection");
 
 
 class DB {
-    // create functions here
+    // display all departments
     async viewDepartments() {
         await connection.query("SELECT name AS Department FROM department", (err, results) => {
             if (err) throw err;
@@ -18,12 +18,14 @@ class DB {
         });
     }
     async viewEmployees() {
+        // drop temp tables if exist
         connection.query("DROP TABLE IF EXISTS empInfo;", (err, results) => {
             if (err) throw err;
         });
         connection.query("DROP TABLE IF EXISTS managers;", (err, results) => {
             if (err) throw err;
         });
+        // create temp tabel to hold join results
         let query = "CREATE TEMPORARY TABLE empInfo AS SELECT employee.id, CONCAT(first_name,' ', last_name) AS Employee, role.title AS Role, role.salary AS Salary, department.name AS Department, manager_id FROM ((employee  INNER JOIN role ON employee.role_id = role.id) INNER JOIN department ON role.department_id = department.id)"
         await connection.query(query, (err, results) => {
             if (err) throw err;
@@ -32,6 +34,7 @@ class DB {
         await connection.query(query, (err, results) => {
             if (err) throw err;
         });
+        // display all relevant information for each employee
         query = "SELECT empinfo.id, Employee, Role, Salary, Department, Manager FROM empInfo LEFT JOIN managers ON empInfo.manager_id = managers.id"
         await connection.query(query, (err, results) => {
             if (err) throw err;
@@ -43,14 +46,17 @@ class DB {
         });
     }
     async viewRoles() {
+        // drop temp table if exists
         await connection.query("DROP TABLE IF EXISTS roleInfo;", (err, results) => {
             if (err) throw err;
         });
+        // create temp table to hold join results
         let query = "CREATE TEMPORARY TABLE roleInfo AS SELECT role.title AS Role, role.salary AS Salary, department.name AS Department FROM role INNER JOIN department ON role.department_id = department.id"
         await connection.query(query, (err, results) => {
             if (err) throw err;
 
         });
+        // display each role with department and salary
         query = "SELECT * FROM roleInfo ORDER BY Salary DESC"
         await connection.query(query, (err, results) => {
             if (err) throw err;
@@ -74,6 +80,7 @@ class DB {
             }
         })
             .then(answer => {
+                // add new department into database
                 const query = "INSERT INTO department SET ?"
                 connection.query(query,
                     {
@@ -93,6 +100,7 @@ class DB {
     addEmployee() {
         const roles = [];
         let query = "SELECT * FROM role"
+        // push roles to a list to become options
         connection.query(query, (err, roleList) => {
             if (err) throw err
             for (var i = 0; i < roleList.length; i++) {
@@ -100,6 +108,7 @@ class DB {
             }
         })
         const managers = [];
+        // push managers to a list to become options
         query = "SELECT CONCAT(first_name,' ', last_name) AS Manager FROM employee WHERE manager_id IS NULL"
         connection.query(query, (err, managerList) => {
             if (err) throw err
@@ -143,10 +152,12 @@ class DB {
             choices: managers
         }])
             .then(answer => {
+                // push roles to a list to become options
                 query = "SELECT id FROM role WHERE title = ?"
                 connection.query(query, answer.role, (err, results) => {
                     if (err) throw err;
                     const roleId = results[0].id
+                    // spilt joined manager values from before to pull the id
                     const manager = answer.manager.split(" ");
                     query = "SELECT * FROM employee WHERE first_name = ? AND last_name =?"
                     connection.query(query, [manager[0], manager[1]], (err, managerResult) => {
@@ -158,6 +169,7 @@ class DB {
                         else {
                             managerID = managerResult[0].id
                         }
+                        // add new employee to the database
                         query = "INSERT INTO employee SET ?"
                         connection.query(query,
                             {
@@ -178,6 +190,7 @@ class DB {
 
     addRole() {
         const departments = [];
+        // push departments to a list to become options
         let query = "SELECT * FROM department"
         connection.query(query, (err, depList) => {
             if (err) throw err
@@ -217,6 +230,7 @@ class DB {
                 query = "SELECT id FROM department WHERE name = ?"
                 connection.query(query, answer.deptName, (err, results) => {
                     if (err) throw err;
+                    // add new role to the database
                     query = "INSERT INTO role SET ?"
                     connection.query(query,
                         {
@@ -241,6 +255,7 @@ class DB {
     updateEmployee() {
         const employees = [];
         const roles = [];
+        // push roles to a list to become options
         let query = "SELECT title FROM role"
         connection.query(query, (err, results) => {
             if (err) throw err;
@@ -248,6 +263,7 @@ class DB {
                 roles.push(results[i].title)
             }
         });
+        // push employees to a list to become options
         query = "SELECT CONCAT(first_name,' ', last_name) AS Employee, title FROM employee INNER JOIN role ON employee.role_id = role.id "
         connection.query(query, (err, results) => {
             if (err) throw err;
@@ -268,11 +284,14 @@ class DB {
             }])
                 .then(answer => {
                     const employee = answer.employee.split(" ");
+                    // grab id from split employee value
                     let query = "SELECT id FROM employee WHERE first_name = ? AND last_name =?"
                     connection.query(query, [employee[0], employee[1]], (err, employeeResult) => {
                         query = "SELECT id FROM role WHERE title = ?"
+                        // get their role
                         connection.query(query, answer.newRole, (err, results) => {
                             if (err) throw err;
+                            // update to a new chosen role
                             query = "UPDATE employee SET role_id = ? WHERE id =?"
                             connection.query(query, [results[0].id, employeeResult[0].id])
                             console.log("The employee has been updated!");
@@ -288,6 +307,7 @@ class DB {
 
     employeesByManager() {
         const managers = [];
+        // drop temp table
         connection.query("DROP TABLE IF EXISTS temp;", (err, results) => {
             if (err) throw err;
         });
@@ -295,6 +315,7 @@ class DB {
         connection.query(query, (err, results) => {
             if (err) throw err;
         })
+        // push managers to a list to become options
         query = "SELECT Manager FROM temp"
         connection.query(query, (err, results) => {
             if (err) throw err;
@@ -314,11 +335,13 @@ class DB {
                     const chosenManager = answer.manager;
                     console.log(chosenManager)
                     query = "SELECT id FROM temp WHERE Manager =?"
+                    // create temp tbael to hold joined results
                     connection.query(query, [chosenManager], (err, managerResult) => {
                         query = "CREATE TEMPORARY TABLE temp2 AS SELECT CONCAT(first_name,' ', last_name) AS Employee, title AS Role, salary AS Salary, name AS Department FROM ((employee INNER JOIN role ON employee.role_id = role.id) INNER JOIN department ON role.department_id = department.id) WHERE manager_id = ?"
                         connection.query(query, [managerResult[0].id], (err, results) => {
                             if (err) throw err;
                             query = "SELECT * FROM temp2"
+                            // display employees who have the chosen manager
                             connection.query(query, [managerResult[0].id], (err, results) => {
                                 if (err) throw err;
                                 console.table(results);
@@ -341,7 +364,7 @@ class DB {
         let query = "CREATE TEMPORARY TABLE temp AS SELECT id , CONCAT(first_name,' ', last_name) AS employee FROM employee;"
         connection.query(query, (err, results) => {
             if (err) throw err;
-
+            // push employees to a list to become options
             query = "SELECT employee FROM temp"
             connection.query("SELECT employee FROM temp", (err, results) => {
                 if (err) throw err;
@@ -358,7 +381,9 @@ class DB {
                         query = "SELECT id FROM temp WHERE Employee =?"
                         connection.query(query, answer.employee, (err, results) => {
                             if (err) throw err;
+                            // grab ID
                             const empId = results[0].id
+                            // delete record with mathcign ID
                             query = "DELETE FROM employee WHERE id =?";
                             connection.query(query, empId, (err, results) => {
                                 if (err) throw err;
@@ -376,6 +401,7 @@ class DB {
     deleteRole() {
         const roles = [];
         let query = "SELECT title FROM role"
+        // push roles to a list to become options
         connection.query(query, (err, results) => {
             if (err) throw err;
             for (var i = 0; i < results.length; i++) {
@@ -393,7 +419,9 @@ class DB {
                     query = "SELECT id FROM role WHERE title =?"
                     connection.query(query, answer.role, (err, results) => {
                         if (err) throw err;
+                        // grab ID
                         const roleID = results[0].id
+                        // delete record with matching ID
                         query = "DELETE FROM role WHERE id =?";
                         connection.query(query, roleID, (err, results) => {
                             if (err) throw err;
@@ -411,6 +439,7 @@ class DB {
     deleteDepartment() {
         var departments = [];
         let query = "SELECT name FROM department"
+        // push departments to a list to become options
         connection.query(query, (err, results) => {
             if (err) throw err;
             for (var i = 0; i < results.length; i++) {
@@ -427,7 +456,9 @@ class DB {
                     query = "SELECT id FROM department WHERE name =?"
                     connection.query(query, answer.department, (err, results) => {
                         if (err) throw err;
+                        // grab ID
                         const depID = results[0].id
+                        // delete record with matching ID
                         query = "DELETE FROM department WHERE id =?";
                         connection.query(query, depID, (err, results) => {
                             if (err) throw err;
@@ -448,9 +479,11 @@ class DB {
         await connection.query("DROP TABLE IF EXISTS depBudget;", (err, results) => {
             if (err) throw err;
         });
+        // create temp table to hold joined results
         let query = "CREATE TEMPORARY TABLE depBudget AS SELECT employee.id AS Employee, role.salary AS Salary, department.name AS Department, department_id FROM ((employee  LEFT JOIN role ON employee.role_id = role.id) RIGHT JOIN department ON role.department_id = department.id);"
         await connection.query(query, (err, results) => {
             if (err) throw err;
+            // sum salaries within each department
             query = "SELECT Department, SUM(Salary), COUNT(Employee) AS NumberOfEmployees FROM depBudget GROUP BY Department;"
             connection.query(query, (err, results) => {
                 if (err) throw err;
